@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-forest-950: #0b1f18;
+  --color-forest-900: #122d23;
+  --color-forest-800: #1b4332;
+  --color-forest-700: #235440;
+  --color-forest-600: #2d6a4f;
+
+  --color-botanical-600: #2f7a55;
+  --color-botanical-500: #40916c;
+  --color-botanical-400: #5ba985;
+  --color-botanical-300: #8fbc9b;
+  --color-botanical-200: #c2d9c8;
+  --color-botanical-100: #dce9df;
+
+  --color-gold-600: #a9852a;
+  --color-gold-500: #c0972f;
+  --color-gold-400: #cfa94a;
+  --color-gold-300: #dcbd74;
+  --color-gold-100: #f4ead0;
+
+  --color-ivory-50: #faf8f2;
+  --color-ivory-100: #f4f0e6;
+  --color-ivory-200: #eae4d5;
+
+  --color-sage-50: #f1f4ec;
+  --color-sage-100: #e8eee1;
+  --color-sage-200: #d8e2cd;
+
+  --color-ink-900: #1d2b24;
+  --color-ink-700: #33443b;
+  --color-ink-500: #5a6b61;
+  --color-ink-400: #75857b;
+
+  --shadow-soft: 0 24px 48px -20px rgb(18 45 35 / 0.22);
+  --shadow-card: 0 12px 32px -16px rgb(18 45 35 / 0.18);
+  --shadow-lift: 0 18px 40px -18px rgb(18 45 35 / 0.3);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-ivory-50);
+  color: var(--color-ink-900);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background: var(--color-botanical-200);
+  color: var(--color-forest-900);
+}
+
+/* ---------- layout helpers ---------- */
+
+.container-x {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 78rem;
+  padding-inline: 1.25rem;
+}
+@media (min-width: 640px) {
+  .container-x {
+    padding-inline: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .container-x {
+    padding-inline: 3rem;
+  }
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--color-botanical-500);
+  outline-offset: 2px;
+}
+
+/* ---------- form fields ---------- */
+
+.field {
+  width: 100%;
+  border: 1px solid rgb(29 43 36 / 0.14);
+  background: var(--color-ivory-50);
+  border-radius: 0.9rem;
+  padding: 0 1rem;
+  height: 3rem;
+  font-size: 0.95rem;
+  color: var(--color-ink-900);
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.field::placeholder {
+  color: var(--color-ink-400);
+}
+.field:focus {
+  outline: none;
+  border-color: var(--color-botanical-500);
+  box-shadow: 0 0 0 3px rgb(64 145 108 / 0.14);
+}
+.field-area {
+  height: auto;
+  min-height: 7rem;
+  padding-block: 0.8rem;
+  resize: vertical;
+}
+.field-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-ink-700);
+  margin-bottom: 0.45rem;
+}
+
+/* ---------- scroll reveal ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.reveal-scale {
+  transform: translateY(16px) scale(0.985);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.img-reveal img {
+  transform: scale(1.06);
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.img-reveal.is-visible img {
+  transform: scale(1);
+}
+
+/* ---------- journey line ---------- */
+
+.journey-line {
+  position: relative;
+  overflow: hidden;
+}
+.journey-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--color-forest-700),
+    var(--color-botanical-500)
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.6s 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.is-visible .journey-line::after {
+  transform: scaleX(1);
+}
+
+/* ---------- accordion ---------- */
+
+.accordion-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.accordion-body.open {
+  grid-template-rows: 1fr;
+}
+.accordion-inner {
+  overflow: hidden;
+}
+
+/* ---------- misc ---------- */
+
+.text-balance {
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal,
+  .img-reveal img,
+  .journey-line::after {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+  }
+}
