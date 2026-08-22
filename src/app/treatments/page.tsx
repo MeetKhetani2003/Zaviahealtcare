@@ -63,7 +63,7 @@ export default function Treatments() {
           <SectionHead
             eyebrow="Care Paths"
             title="What We Do"
-            align="center"
+            center={true}
           />
           {loading ? (
             <div className="text-center py-20 text-forest-700 font-medium">Loading treatments...</div>

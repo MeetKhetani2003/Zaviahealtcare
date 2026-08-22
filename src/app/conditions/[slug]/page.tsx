@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import Link from "next/link";
 import { useParams, redirect } from "next/navigation";

@@ -12,7 +12,7 @@ export const site = {
   role: "Urologist",
   phone: "7004553815",
   phoneHref: "tel:+917004553815",
-  email: "rehanansari2503@gmail.com",
+  email: "zivrahealth25@gmail.com",
   address: "Sarai Sattar Khan, Laheriasarai, Darbhanga, Bihar, India",
   mapsUrl:
     "https://www.google.com/maps/search/?api=1&query=Sarai+Sattar+Khan%2C+Laheriasarai%2C+Darbhanga%2C+Bihar%2C+India",

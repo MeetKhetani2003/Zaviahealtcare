@@ -69,6 +69,15 @@ export default function BookConsultation() {
         if (res.ok) {
           setSubmitted(form);
           window.scrollTo({ top: 0, behavior: "smooth" });
+          
+          const textParts = ["Hello Zivra Health, I have submitted an assessment request with the following details:"];
+          data.formFields.forEach((f: any) => {
+            if (form[f.id]) {
+              textParts.push(`${f.label}: ${form[f.id]}`);
+            }
+          });
+          const msg = textParts.join("\\n");
+          window.open(`https://wa.me/917004553815?text=${encodeURIComponent(msg)}`, '_blank');
         } else {
           setSubmitError("Something went wrong. Please try again.");
         }
