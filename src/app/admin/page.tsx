@@ -329,8 +329,11 @@ function UploadTab() {
 function ConditionsTab() {
   const [conditions, setConditions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ title: '', short: '', image: '', understanding: '', symptoms: '', consultation: '' });
+  const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  const defaultForm = { title: '', short: '', image: '', understanding: '', symptoms: '', consultation: '' };
+  const [form, setForm] = useState(defaultForm);
 
   const fetchConditions = () => {
     fetch('/api/conditions')
@@ -347,34 +350,68 @@ function ConditionsTab() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCreating(true);
+    setSaving(true);
     
     // Parse newline separated text into arrays
-    const newCond = {
+    const conditionData = {
       title: form.title,
       short: form.short,
       image: form.image,
-      understanding: form.understanding.split('\n').filter(Boolean),
-      symptoms: form.symptoms.split('\n').filter(Boolean),
-      consultation: form.consultation.split('\n').filter(Boolean),
-      faqs: []
+      understanding: typeof form.understanding === 'string' ? form.understanding.split('\n').filter(Boolean) : form.understanding,
+      symptoms: typeof form.symptoms === 'string' ? form.symptoms.split('\n').filter(Boolean) : form.symptoms,
+      consultation: typeof form.consultation === 'string' ? form.consultation.split('\n').filter(Boolean) : form.consultation,
+      ...(editingId ? { _id: editingId } : { faqs: [] })
     };
 
     try {
       const res = await fetch('/api/conditions', {
-        method: 'POST',
+        method: editingId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCond)
+        body: JSON.stringify(conditionData)
       });
       if (res.ok) {
-        setForm({ title: '', short: '', image: '', understanding: '', symptoms: '', consultation: '' });
+        setForm(defaultForm);
+        setEditingId(null);
         fetchConditions();
       }
     } catch (err) {
       console.error(err);
     } finally {
-      setCreating(false);
+      setSaving(false);
     }
+  };
+
+  const handleEdit = (c: any) => {
+    setEditingId(c._id);
+    setForm({
+      title: c.title || '',
+      short: c.short || '',
+      image: c.image || '',
+      understanding: Array.isArray(c.understanding) ? c.understanding.join('\n') : c.understanding || '',
+      symptoms: Array.isArray(c.symptoms) ? c.symptoms.join('\n') : c.symptoms || '',
+      consultation: Array.isArray(c.consultation) ? c.consultation.join('\n') : c.consultation || ''
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this condition?')) return;
+    try {
+      const res = await fetch(`/api/conditions?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        if (editingId === id) {
+          setEditingId(null);
+          setForm(defaultForm);
+        }
+        fetchConditions();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm(defaultForm);
   };
 
   return (
@@ -384,9 +421,15 @@ function ConditionsTab() {
         {loading ? <p>Loading...</p> : (
           <div className="flex flex-col gap-3">
             {conditions.map(c => (
-              <div key={c._id} className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="font-bold text-forest-900">{c.title}</div>
-                <div className="text-sm text-gray-500 mt-1">{c.short}</div>
+              <div key={c._id} className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm flex justify-between items-start">
+                <div>
+                  <div className="font-bold text-forest-900">{c.title}</div>
+                  <div className="text-sm text-gray-500 mt-1">{c.short}</div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleEdit(c)} className="text-sm bg-forest-50 text-forest-700 px-3 py-1 rounded hover:bg-forest-100">Edit</button>
+                  <button onClick={() => handleDelete(c._id)} className="text-sm bg-red-50 text-red-600 px-3 py-1 rounded hover:bg-red-100">Delete</button>
+                </div>
               </div>
             ))}
           </div>
@@ -394,7 +437,12 @@ function ConditionsTab() {
       </div>
       
       <div className="w-1/2 bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-bold text-forest-900 mb-6">Add New Condition</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-forest-900">{editingId ? 'Edit Condition' : 'Add New Condition'}</h2>
+          {editingId && (
+            <button onClick={cancelEdit} className="text-sm text-gray-500 hover:text-gray-700 underline">Cancel Edit</button>
+          )}
+        </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input required type="text" placeholder="Title (e.g. Urinary Health)" className="p-3 border rounded-xl" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
           <input required type="text" placeholder="Short Description" className="p-3 border rounded-xl" value={form.short} onChange={e => setForm({...form, short: e.target.value})} />
@@ -409,8 +457,8 @@ function ConditionsTab() {
           <label className="text-sm font-semibold">Consultation (1 paragraph per line)</label>
           <textarea rows={3} className="p-3 border rounded-xl" value={form.consultation} onChange={e => setForm({...form, consultation: e.target.value})} />
           
-          <button type="submit" disabled={creating} className="bg-forest-800 text-white p-3 rounded-xl font-bold hover:bg-forest-900 disabled:opacity-50">
-            {creating ? 'Creating...' : 'Create Condition'}
+          <button type="submit" disabled={saving} className="bg-forest-800 text-white p-3 rounded-xl font-bold hover:bg-forest-900 disabled:opacity-50">
+            {saving ? 'Saving...' : (editingId ? 'Save Changes' : 'Create Condition')}
           </button>
         </form>
       </div>
@@ -421,8 +469,11 @@ function ConditionsTab() {
 function TreatmentsTab() {
   const [treatments, setTreatments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ title: '', short: '', image: '', overview: '', whoShould: '', involves: '' });
+  const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  const defaultForm = { title: '', short: '', image: '', overview: '', whoShould: '', involves: '' };
+  const [form, setForm] = useState(defaultForm);
 
   const fetchTreatments = () => {
     fetch('/api/treatments')
@@ -439,34 +490,68 @@ function TreatmentsTab() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCreating(true);
+    setSaving(true);
     
     // Parse newline separated text into arrays
-    const newTreat = {
+    const treatmentData = {
       title: form.title,
       short: form.short,
       image: form.image,
-      overview: form.overview.split('\n').filter(Boolean),
-      whoShould: form.whoShould.split('\n').filter(Boolean),
-      involves: form.involves.split('\n').filter(Boolean),
-      faqs: []
+      overview: typeof form.overview === 'string' ? form.overview.split('\n').filter(Boolean) : form.overview,
+      whoShould: typeof form.whoShould === 'string' ? form.whoShould.split('\n').filter(Boolean) : form.whoShould,
+      involves: typeof form.involves === 'string' ? form.involves.split('\n').filter(Boolean) : form.involves,
+      ...(editingId ? { _id: editingId } : { faqs: [] })
     };
 
     try {
       const res = await fetch('/api/treatments', {
-        method: 'POST',
+        method: editingId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newTreat)
+        body: JSON.stringify(treatmentData)
       });
       if (res.ok) {
-        setForm({ title: '', short: '', image: '', overview: '', whoShould: '', involves: '' });
+        setForm(defaultForm);
+        setEditingId(null);
         fetchTreatments();
       }
     } catch (err) {
       console.error(err);
     } finally {
-      setCreating(false);
+      setSaving(false);
     }
+  };
+
+  const handleEdit = (t: any) => {
+    setEditingId(t._id);
+    setForm({
+      title: t.title || '',
+      short: t.short || '',
+      image: t.image || '',
+      overview: Array.isArray(t.overview) ? t.overview.join('\n') : t.overview || '',
+      whoShould: Array.isArray(t.whoShould) ? t.whoShould.join('\n') : t.whoShould || '',
+      involves: Array.isArray(t.involves) ? t.involves.join('\n') : t.involves || ''
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this treatment?')) return;
+    try {
+      const res = await fetch(`/api/treatments?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        if (editingId === id) {
+          setEditingId(null);
+          setForm(defaultForm);
+        }
+        fetchTreatments();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm(defaultForm);
   };
 
   return (
@@ -476,9 +561,15 @@ function TreatmentsTab() {
         {loading ? <p>Loading...</p> : (
           <div className="flex flex-col gap-3">
             {treatments.map(t => (
-              <div key={t._id} className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="font-bold text-forest-900">{t.title}</div>
-                <div className="text-sm text-gray-500 mt-1">{t.short}</div>
+              <div key={t._id} className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm flex justify-between items-start">
+                <div>
+                  <div className="font-bold text-forest-900">{t.title}</div>
+                  <div className="text-sm text-gray-500 mt-1">{t.short}</div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleEdit(t)} className="text-sm bg-forest-50 text-forest-700 px-3 py-1 rounded hover:bg-forest-100">Edit</button>
+                  <button onClick={() => handleDelete(t._id)} className="text-sm bg-red-50 text-red-600 px-3 py-1 rounded hover:bg-red-100">Delete</button>
+                </div>
               </div>
             ))}
           </div>
@@ -486,7 +577,12 @@ function TreatmentsTab() {
       </div>
       
       <div className="w-1/2 bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-bold text-forest-900 mb-6">Add New Treatment</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-forest-900">{editingId ? 'Edit Treatment' : 'Add New Treatment'}</h2>
+          {editingId && (
+            <button onClick={cancelEdit} className="text-sm text-gray-500 hover:text-gray-700 underline">Cancel Edit</button>
+          )}
+        </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input required type="text" placeholder="Title (e.g. Urology Consultation)" className="p-3 border rounded-xl" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
           <input required type="text" placeholder="Short Description" className="p-3 border rounded-xl" value={form.short} onChange={e => setForm({...form, short: e.target.value})} />
@@ -501,8 +597,8 @@ function TreatmentsTab() {
           <label className="text-sm font-semibold">What It Involves (1 bullet per line)</label>
           <textarea rows={3} className="p-3 border rounded-xl" value={form.involves} onChange={e => setForm({...form, involves: e.target.value})} />
           
-          <button type="submit" disabled={creating} className="bg-forest-800 text-white p-3 rounded-xl font-bold hover:bg-forest-900 disabled:opacity-50">
-            {creating ? 'Creating...' : 'Create Treatment'}
+          <button type="submit" disabled={saving} className="bg-forest-800 text-white p-3 rounded-xl font-bold hover:bg-forest-900 disabled:opacity-50">
+            {saving ? 'Saving...' : (editingId ? 'Save Changes' : 'Create Treatment')}
           </button>
         </form>
       </div>

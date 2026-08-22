@@ -54,3 +54,64 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { _id, ...updateData } = body;
+    
+    if (!_id) {
+      return NextResponse.json({ error: 'Condition ID is required' }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db();
+    const collection = db.collection('conditions');
+    
+    const { ObjectId } = require('mongodb');
+
+    const result = await collection.updateOne(
+      { _id: new ObjectId(_id) },
+      { $set: updateData }
+    );
+    
+    return NextResponse.json({ success: true, modifiedCount: result.modifiedCount }, { status: 200 });
+  } catch (error) {
+    console.error('Error updating condition:', error);
+    return NextResponse.json(
+      { error: 'Failed to update condition' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Condition ID is required' }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db();
+    const collection = db.collection('conditions');
+    
+    const { ObjectId } = require('mongodb');
+
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ error: 'Condition not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error) {
+    console.error('Error deleting condition:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete condition' },
+      { status: 500 }
+    );
+  }
+}
