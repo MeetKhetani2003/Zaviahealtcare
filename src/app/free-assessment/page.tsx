@@ -233,9 +233,9 @@ export default function BookConsultation() {
                     })}
                   </div>
                   <div className="mt-7">
-                    <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isSubmitting}>
+                    <button type="submit" className="w-full sm:w-auto bg-forest-900 text-white rounded-xl py-4 px-8 font-bold disabled:opacity-70" disabled={isSubmitting}>
                       {isSubmitting ? "Submitting..." : "Submit Consultation Request"}
-                    </Button>
+                    </button>
                     {submitError && <p className="mt-2 text-red-600 text-sm font-medium">{submitError}</p>}
                   </div>
                   <p className="mt-5 text-[12.5px] leading-relaxed text-ink-400">
