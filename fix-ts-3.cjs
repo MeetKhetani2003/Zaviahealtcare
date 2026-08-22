@@ -1,0 +1,33 @@
+const fs = require('fs');
+const path = require('path');
+
+function walk(dir) {
+  let results = [];
+  const list = fs.readdirSync(dir);
+  list.forEach(function(file) {
+    file = path.join(dir, file);
+    const stat = fs.statSync(file);
+    if (stat && stat.isDirectory()) { 
+      results = results.concat(walk(file));
+    } else { 
+      if (file.endsWith('.tsx') || file.endsWith('.ts')) {
+        results.push(file);
+      }
+    }
+  });
+  return results;
+}
+
+const files = walk(path.join(__dirname, 'src'));
+
+for (const file of files) {
+  // Skip layout.tsx if we want, but it already has "use client"
+  if (file.endsWith('.tsx') && !file.includes('layout.tsx')) {
+    let content = fs.readFileSync(file, 'utf8');
+    if (!content.includes('"use client"')) {
+      content = `"use client";\n` + content;
+      fs.writeFileSync(file, content, 'utf8');
+    }
+  }
+}
+console.log("Added use client to all tsx");

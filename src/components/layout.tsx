@@ -1,5 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "../utils/cn";
 import { IMG } from "../assets";
 import { nav, site, conditions, disclaimer } from "../data/content";
@@ -17,7 +20,7 @@ export function Logo({
   onDark?: boolean;
 }) {
   return (
-    <Link to="/" aria-label="ZivRA HEALTH — Home" className="inline-block">
+    <Link href="/" aria-label="ZivRA HEALTH — Home" className="inline-block">
       <span
         className={cn(
           "block overflow-hidden transition-all duration-500",
@@ -45,7 +48,7 @@ export function Logo({
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -56,7 +59,7 @@ export function Header() {
 
   useEffect(() => {
     setOpen(false);
-  }, [location.pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -69,10 +72,8 @@ export function Header() {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-          scrolled
-            ? "border-b border-forest-900/10 bg-ivory-50/95 shadow-[0_8px_30px_-18px_rgb(18_45_35/0.3)] backdrop-blur-sm"
-            : "border-b border-transparent bg-transparent"
+          "fixed inset-x-0 top-0 z-50 transition-all duration-500 border-b border-forest-900/10 bg-ivory-50/95 shadow-sm backdrop-blur-sm",
+          scrolled ? "shadow-[0_8px_30px_-18px_rgb(18_45_35/0.3)]" : ""
         )}
       >
         <div
@@ -85,21 +86,18 @@ export function Header() {
 
           <nav className="hidden items-center gap-7 xl:flex" aria-label="Main">
             {nav.map((item) => (
-              <NavLink
+              <Link
                 key={item.to}
-                to={item.to}
-                end={item.to === "/"}
-                className={({ isActive }) =>
-                  cn(
-                    "font-display text-[13.5px] font-semibold transition-colors duration-300",
-                    isActive
-                      ? "text-forest-800 underline decoration-gold-500 decoration-2 underline-offset-8"
-                      : "text-ink-700 hover:text-forest-800"
-                  )
-                }
+                href={item.to}
+                className={cn(
+                  "font-display text-[13.5px] font-semibold transition-colors duration-300",
+                  pathname === item.to
+                    ? "text-forest-800 underline decoration-gold-500 decoration-2 underline-offset-8"
+                    : "text-ink-700 hover:text-forest-800"
+                )}
               >
                 {item.label}
-              </NavLink>
+              </Link>
             ))}
           </nav>
 
@@ -116,7 +114,7 @@ export function Header() {
                 {site.phone}
               </span>
             </a>
-            <Button to="/book-consultation" size="sm" className="hidden sm:inline-flex">
+            <Button href="/book-consultation" size="sm" className="hidden sm:inline-flex">
               Book Consultation
             </Button>
             <button
@@ -162,24 +160,21 @@ export function Header() {
           </div>
           <nav className="flex flex-col px-6 py-6" aria-label="Mobile">
             {nav.map((item, i) => (
-              <NavLink
+              <Link
                 key={item.to}
-                to={item.to}
-                end={item.to === "/"}
+                href={item.to}
                 style={{ transitionDelay: `${i * 30}ms` }}
-                className={({ isActive }) =>
-                  cn(
-                    "border-b border-forest-900/5 py-4 font-display text-xl font-bold transition-colors",
-                    isActive ? "text-forest-800" : "text-ink-900"
-                  )
-                }
+                className={cn(
+                  "border-b border-forest-900/5 py-4 font-display text-xl font-bold transition-colors",
+                  pathname === item.to ? "text-forest-800" : "text-ink-900"
+                )}
               >
                 {item.label}
-              </NavLink>
+              </Link>
             ))}
           </nav>
           <div className="mt-auto space-y-3 bg-white px-6 py-6">
-            <Button to="/book-consultation" className="w-full">
+            <Button href="/book-consultation" className="w-full">
               Book Consultation
             </Button>
             <Button href={site.phoneHref} variant="outline" className="w-full">
@@ -201,7 +196,7 @@ export function Header() {
 /* ------------------------------------------------------------------ */
 
 export function MobileCTA() {
-  const { pathname } = useLocation();
+  const pathname = usePathname();
   if (pathname === "/book-consultation" || pathname === "/contact") return null;
   return (
     <div
@@ -211,7 +206,7 @@ export function MobileCTA() {
       )}
     >
       <Link
-        to="/book-consultation"
+        href="/book-consultation"
         className="flex h-14 items-center justify-center gap-2 bg-forest-800 font-display text-[13.5px] font-bold text-ivory-50"
       >
         <Icon name="calendar" className="h-4 w-4" strokeWidth={2} />
@@ -246,7 +241,7 @@ export function Footer() {
               urologist with {site.experience.toLowerCase()}.
             </p>
             <div className="mt-7">
-              <Button to="/book-consultation" variant="gold" size="sm">
+              <Button href="/book-consultation" variant="gold" size="sm">
                 Book Consultation
                 <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
               </Button>
@@ -261,7 +256,7 @@ export function Footer() {
               {nav.map((item) => (
                 <li key={item.to}>
                   <Link
-                    to={item.to}
+                    href={item.to}
                     className="text-[14px] text-ivory-100/65 transition-colors hover:text-ivory-50"
                   >
                     {item.label}
@@ -279,7 +274,7 @@ export function Footer() {
               {conditions.slice(0, 5).map((c) => (
                 <li key={c.slug}>
                   <Link
-                    to={`/conditions/${c.slug}`}
+                    href={`/conditions/${c.slug}`}
                     className="text-[14px] text-ivory-100/65 transition-colors hover:text-ivory-50"
                   >
                     {c.title}
@@ -288,7 +283,7 @@ export function Footer() {
               ))}
               <li>
                 <Link
-                  to="/conditions"
+                  href="/conditions"
                   className="text-[14px] font-semibold text-gold-300 transition-colors hover:text-gold-100"
                 >
                   View all conditions →
@@ -355,16 +350,16 @@ export function ScrollToTop() {
 /*  Layout                                                             */
 /* ------------------------------------------------------------------ */
 
-export default function Layout() {
+export default function Layout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith('/admin');
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <ScrollToTop />
-      <Header />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <Footer />
-      <MobileCTA />
+    <div className="flex min-h-screen flex-col font-sans antialiased">
+      {!isAdmin && <Header />}
+      <main className="flex-1">{children}</main>
+      {!isAdmin && <Footer />}
+      {!isAdmin && <MobileCTA />}
     </div>
   );
 }

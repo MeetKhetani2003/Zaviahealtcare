@@ -1,7 +1,8 @@
+"use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { cn } from "../utils/cn";
-import type { Faq } from "../data/content";
+import Link from "next/link";
+import { cn } from "@/utils/cn";
+import type { Faq } from "@/data/content";
 
 /* ------------------------------------------------------------------ */
 /*  SEO                                                                */
@@ -225,7 +226,7 @@ export function Button({
 
   if (to)
     return (
-      <Link to={to} className={cls} aria-label={ariaLabel}>
+      <Link href={to} className={cls} aria-label={ariaLabel}>
         {children}
       </Link>
     );

@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
-import { cn } from "../utils/cn";
+"use client";
+import Link from "next/link";
+import { cn } from "@/utils/cn";
 import { Botanical, Button, Icon, Reveal } from "./ui";
-import { site, type Condition, type ProcessStep, type Treatment } from "../data/content";
+import { site, type Condition, type ProcessStep, type Treatment } from "@/data/content";
 
 /* ------------------------------------------------------------------ */
 /*  Condition card — image-led with gradient overlay                   */
@@ -19,7 +20,7 @@ export function ConditionCard({
   return (
     <Reveal delay={delay} className="h-full">
       <Link
-        to={`/conditions/${c.slug}`}
+        href={`/conditions/${c.slug}`}
         className={cn(
           "group relative block h-full w-full overflow-hidden rounded-3xl border border-forest-900/10 transition-colors duration-500 hover:border-forest-700/50",
           tall ? "min-h-[24rem]" : "min-h-[20rem]"
@@ -73,7 +74,7 @@ export function TreatmentCard({
   return (
     <Reveal delay={delay} className="h-full">
       <Link
-        to={`/treatments/${t.slug}`}
+        href={`/treatments/${t.slug}`}
         className="group flex h-full flex-col overflow-hidden rounded-3xl border border-forest-900/10 bg-white shadow-card transition-all duration-500 hover:-translate-y-1 hover:border-forest-700/40 hover:shadow-soft"
       >
         <div className="img-reveal relative aspect-[16/10] overflow-hidden">
@@ -233,8 +234,8 @@ export function CTASection({
               {text}
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-              <Button to="/book-consultation" variant="light" size="lg">
-                Book Consultation
+              <Button href="/free-assessment" variant="light" size="lg">
+                Take Free Assessment
               </Button>
               <Button href={site.phoneHref} variant="lightOutline" size="lg">
                 <Icon name="phone" className="h-4.5 w-4.5" strokeWidth={2} />
@@ -272,7 +273,7 @@ export function Breadcrumbs({
           {i > 0 && <span className="opacity-50">/</span>}
           {item.to ? (
             <Link
-              to={item.to}
+              href={item.to}
               className={cn(
                 "transition-colors",
                 dark ? "hover:text-ivory-50" : "hover:text-forest-800"
