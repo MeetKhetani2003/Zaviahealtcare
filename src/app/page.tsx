@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { IMG } from "../assets";
 import {
   conditions,
@@ -789,9 +789,153 @@ export default function Home() {
       <Education data={data.education} />
       <ConditionsGrid />
       <Trust data={data.trust} />
+      <VideoTestimonialsSection />
       <Stories />
       <FaqSection />
       <CTASection className="pt-4" />
     </>
+  );
+}
+
+
+/* ================================================================== */
+/*  Video Testimonials                                                */
+/* ================================================================== */
+
+function VideoTestimonialsSection() {
+  const [videos, setVideos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch('/api/video-testimonials')
+      .then(res => res.json())
+      .then(data => {
+        setVideos(data || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = 300;
+      scrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  if (loading) return null;
+
+  return (
+    <section className="bg-white py-20 md:py-28 overflow-hidden">
+      <div className="container-x">
+        <div className="flex items-end justify-between gap-4 mb-10">
+          <SectionHead
+            eyebrow="Real Results"
+            title="Video Testimonials"
+            text="Hear directly from our patients about their experiences and recovery journey."
+          />
+          <div className="hidden md:flex gap-2">
+            <button onClick={() => scroll('left')} className="h-12 w-12 flex items-center justify-center rounded-full border border-forest-900/10 text-forest-900 hover:bg-forest-800 hover:text-white transition-all shadow-sm">
+              <Icon name="chevron-left" className="h-6 w-6" strokeWidth={2} />
+            </button>
+            <button onClick={() => scroll('right')} className="h-12 w-12 flex items-center justify-center rounded-full border border-forest-900/10 text-forest-900 hover:bg-forest-800 hover:text-white transition-all shadow-sm">
+              <Icon name="chevron-right" className="h-6 w-6" strokeWidth={2} />
+            </button>
+          </div>
+        </div>
+        
+        <div className="relative -mx-4 px-4 md:mx-0 md:px-0">
+          {videos.length === 0 ? (
+            <div className="text-center py-12 bg-sage-50 rounded-2xl border border-forest-900/10">
+              <p className="text-forest-900 font-bold">No video testimonials have been uploaded yet.</p>
+              <p className="text-sm text-ink-500 mt-2">Head over to the admin dashboard to add your first video.</p>
+            </div>
+          ) : (
+            <div 
+              ref={scrollRef}
+              className="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-8"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {videos.map((v) => (
+                <div key={v._id} className="min-w-[280px] md:min-w-[320px] max-w-[320px] snap-center flex-shrink-0 bg-sage-50 rounded-2xl overflow-hidden border border-forest-900/10 shadow-soft">
+                <div 
+                  className="aspect-[9/16] relative bg-black cursor-pointer group"
+                  onClick={() => setSelectedVideo(v)}
+                >
+                  <video 
+                    src={v.videoUrl} 
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" 
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="w-14 h-14 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 group-hover:scale-110 transition-transform duration-300">
+                      <Icon name="play" className="h-6 w-6 text-white ml-1" strokeWidth={2.5} />
+                    </div>
+                  </div>
+                </div>
+                  <div className="p-5">
+                    <p className="font-display text-lg font-bold text-forest-900">{v.name}</p>
+                    {v.description && <p className="text-sm text-ink-500 mt-1">{v.description}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Traya-Style Reel Modal */}
+      {selectedVideo && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-6">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-md" onClick={() => setSelectedVideo(null)} />
+          
+          <div className="relative w-full h-full sm:h-[90vh] sm:aspect-[9/16] bg-black sm:rounded-[2.5rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300 flex flex-col border border-white/10">
+            
+            {/* Top Bar with Close Button */}
+            <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-b from-black/60 to-transparent z-10 flex justify-end pointer-events-none">
+              <button 
+                onClick={() => setSelectedVideo(null)}
+                className="pointer-events-auto w-11 h-11 bg-black/20 hover:bg-black/40 backdrop-blur-xl rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 border border-white/10"
+              >
+                <Icon name="x" className="h-5 w-5" strokeWidth={2.5} />
+              </button>
+            </div>
+
+            {/* Video Player */}
+            <video 
+              src={selectedVideo.videoUrl} 
+              controls 
+              autoPlay 
+              playsInline
+              className="w-full h-full object-cover" 
+            />
+
+            {/* Bottom Info Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-6 pb-24 sm:pb-20 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 pointer-events-none flex flex-col justify-end">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-11 h-11 rounded-full bg-forest-800 flex items-center justify-center text-white font-bold text-lg border-2 border-white/20 shadow-lg">
+                  {selectedVideo.name.charAt(0)}
+                </div>
+                <p className="text-white font-bold font-display text-xl tracking-tight drop-shadow-md">
+                  {selectedVideo.name}
+                </p>
+              </div>
+              {selectedVideo.description && (
+                <p className="text-white/90 text-[15px] font-medium drop-shadow leading-snug ml-14">
+                  {selectedVideo.description}
+                </p>
+              )}
+            </div>
+            
+          </div>
+        </div>
+      )}
+    </section>
   );
 }
