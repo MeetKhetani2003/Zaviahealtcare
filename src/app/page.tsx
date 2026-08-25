@@ -74,8 +74,8 @@ function Hero({ data }: { data: any }) {
             </Reveal>
             <Reveal delay={270}>
               <div className="mt-9 flex flex-wrap items-center gap-4">
-                <Button href="/book-consultation" size="lg">
-                  Book Consultation
+                <Button href="/secure-assessment" size="lg">
+                  Secure Assessment
                   <Icon name="arrow-right" className="h-4.5 w-4.5" strokeWidth={2} />
                 </Button>
                 <Button href={site.phoneHref} variant="outline" size="lg">
@@ -761,6 +761,102 @@ function FaqSection() {
 }
 
 /* ================================================================== */
+/*  1.5 — Research Backed                                             */
+/* ================================================================== */
+
+function ResearchBacked() {
+  const [items, setItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/before-after')
+      .then(r => r.json())
+      .then(data => setItems(data || []))
+      .catch(() => {});
+  }, []);
+
+  return (
+    <section className="bg-[#416850] py-16 md:py-24 text-white overflow-hidden">
+      <div className="container-x">
+        <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] items-center">
+          {/* Left Side */}
+          <div>
+            <p className="font-display text-[13px] font-bold uppercase tracking-[0.18em] text-[#8BB284] mb-4">
+              RESEARCH BACKED
+            </p>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-8">
+              93% saw results*
+            </h2>
+            
+            <div className="flex flex-wrap gap-3 mb-8">
+              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
+                <Icon name="users" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
+                300 Participants
+              </span>
+              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
+                <Icon name="file-text" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
+                Users across Stage 1-5
+              </span>
+              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
+                <Icon name="calendar" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
+                Tracked for 5+ months
+              </span>
+            </div>
+            
+            <Link href="/patient-stories" className="inline-flex items-center gap-2 font-display text-[13px] font-bold text-white hover:text-[#8BB284] transition-colors border-b border-white hover:border-[#8BB284] pb-0.5">
+              View Results
+              <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
+            </Link>
+          </div>
+
+          {/* Right Side — Dynamic Before/After Cards */}
+          <div className="flex flex-col sm:flex-row gap-6 lg:gap-8 justify-center lg:justify-end mt-8 lg:mt-0 overflow-x-auto hide-scrollbar pt-8" style={{ scrollbarWidth: 'none' }}>
+            {items.length > 0 ? items.slice(0, 3).map((item, idx) => (
+              <div key={item._id} className={`relative bg-[#F9F7EF] rounded-3xl p-4 sm:p-5 text-forest-900 w-full sm:w-auto shadow-lg max-w-[280px] mx-auto shrink-0 ${idx > 0 ? 'mt-8 sm:mt-0' : ''}`}>
+                {/* Avatar */}
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full overflow-hidden border-[3px] border-[#416850] bg-forest-800 z-10 shadow-md">
+                  {item.avatarUrl ? (
+                    <img src={item.avatarUrl} alt={item.patientName} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-white font-bold text-base">
+                        {item.patientName?.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || '?'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {/* Before / After Images */}
+                <div className="flex gap-3 sm:gap-4 mt-8">
+                  <div className="flex-1 text-center">
+                    <p className="text-[11px] font-bold uppercase tracking-wider mb-2 text-forest-800">BEFORE</p>
+                    <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-200">
+                      <img src={item.beforeImageUrl} alt="Before treatment" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                  <div className="flex-1 text-center">
+                    <p className="text-[11px] font-bold uppercase tracking-wider mb-2 text-forest-800">AFTER</p>
+                    <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-200">
+                      <img src={item.afterImageUrl} alt="After treatment" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                </div>
+                {item.caption && (
+                  <p className="text-center text-[11px] text-ink-500 mt-3 font-medium">{item.caption}</p>
+                )}
+              </div>
+            )) : (
+              /* Fallback placeholder when no items uploaded yet */
+              <div className="bg-[#F9F7EF]/20 rounded-3xl p-8 text-center border border-white/10 max-w-sm">
+                <p className="text-white/70 text-sm">Before & After results will appear here once uploaded from the admin dashboard.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================== */
 /*  Page                                                              */
 /* ================================================================== */
 
@@ -782,6 +878,7 @@ export default function Home() {
   return (
     <>
       <Hero data={data.hero} />
+      <ResearchBacked />
       <Concerns />
       <DoctorIntro data={data.doctorIntro} />
       <Why data={data.why} />
@@ -858,31 +955,29 @@ function VideoTestimonialsSection() {
           ) : (
             <div 
               ref={scrollRef}
-              className="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-8"
+              className="flex gap-6 overflow-x-auto hide-scrollbar pb-8 pt-4 justify-start md:justify-center px-4"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {videos.map((v) => (
-                <div key={v._id} className="min-w-[280px] md:min-w-[320px] max-w-[320px] snap-center flex-shrink-0 bg-sage-50 rounded-2xl overflow-hidden border border-forest-900/10 shadow-soft">
-                <div 
-                  className="aspect-[9/16] relative bg-black cursor-pointer group"
-                  onClick={() => setSelectedVideo(v)}
-                >
-                  <video 
-                    src={v.videoUrl} 
-                    playsInline
-                    preload="metadata"
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" 
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-14 h-14 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 group-hover:scale-110 transition-transform duration-300">
-                      <Icon name="play" className="h-6 w-6 text-white ml-1" strokeWidth={2.5} />
+                <div key={v._id} className="flex flex-col items-center gap-3 shrink-0 cursor-pointer group" onClick={() => setSelectedVideo(v)}>
+                  {/* Story Ring */}
+                  <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full p-[3px] bg-gradient-to-tr from-gold-400 via-forest-500 to-forest-800 transition-transform duration-300 group-hover:scale-105 shadow-md">
+                    <div className="w-full h-full rounded-full overflow-hidden border-2 border-white bg-black relative">
+                      <video 
+                        src={v.videoUrl} 
+                        playsInline
+                        preload="metadata"
+                        className="w-full h-full object-cover opacity-80" 
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Icon name="play" className="h-6 w-6 text-white drop-shadow-md ml-1" strokeWidth={2.5} />
+                      </div>
                     </div>
                   </div>
-                </div>
-                  <div className="p-5">
-                    <p className="font-display text-lg font-bold text-forest-900">{v.name}</p>
-                    {v.description && <p className="text-sm text-ink-500 mt-1">{v.description}</p>}
-                  </div>
+                  {/* Name below ring */}
+                  <p className="text-[11px] md:text-xs font-semibold text-forest-900 text-center max-w-[80px] md:max-w-[96px] truncate">
+                    {v.name}
+                  </p>
                 </div>
               ))}
             </div>

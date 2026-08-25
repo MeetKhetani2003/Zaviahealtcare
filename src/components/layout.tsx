@@ -114,8 +114,8 @@ export function Header() {
                 {site.phone}
               </span>
             </a>
-            <Button href="/book-consultation" size="sm" className="hidden sm:inline-flex">
-              Book Consultation
+            <Button href="/secure-assessment" size="sm" className="hidden sm:inline-flex">
+              Secure Assessment
             </Button>
             <button
               type="button"
@@ -174,8 +174,8 @@ export function Header() {
             ))}
           </nav>
           <div className="mt-auto space-y-3 bg-white px-6 py-6">
-            <Button href="/book-consultation" className="w-full">
-              Book Consultation
+            <Button href="/secure-assessment" className="w-full">
+              Secure Assessment
             </Button>
             <Button href={site.phoneHref} variant="outline" className="w-full">
               <Icon name="phone" className="h-4 w-4" strokeWidth={2} />
@@ -197,7 +197,7 @@ export function Header() {
 
 export function MobileCTA() {
   const pathname = usePathname();
-  if (pathname === "/book-consultation" || pathname === "/contact") return null;
+  if (pathname === "/secure-assessment" || pathname === "/contact") return null;
   return (
     <div
       className={cn(
@@ -206,11 +206,11 @@ export function MobileCTA() {
       )}
     >
       <Link
-        href="/book-consultation"
+        href="/secure-assessment"
         className="flex h-14 items-center justify-center gap-2 bg-forest-800 font-display text-[13.5px] font-bold text-ivory-50"
       >
         <Icon name="calendar" className="h-4 w-4" strokeWidth={2} />
-        Book Consultation
+        Secure Assessment
       </Link>
       <a
         href={site.phoneHref}
@@ -241,8 +241,8 @@ export function Footer() {
               urologist with {site.experience.toLowerCase()}.
             </p>
             <div className="mt-7">
-              <Button href="/book-consultation" variant="gold" size="sm">
-                Book Consultation
+              <Button href="/secure-assessment" variant="gold" size="sm">
+                Secure Assessment
                 <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
               </Button>
             </div>

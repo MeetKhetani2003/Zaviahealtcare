@@ -18,7 +18,7 @@ type Inquiry = {
 };
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<"inquiries" | "home" | "free-assessment" | "upload" | "conditions" | "treatments" | "about" | "how-it-works" | "stories" | "faqs" | "video-testimonials">("inquiries");
+  const [activeTab, setActiveTab] = useState<"inquiries" | "home" | "free-assessment" | "upload" | "conditions" | "treatments" | "about" | "how-it-works" | "stories" | "faqs" | "video-testimonials" | "before-after">("inquiries");
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -127,6 +127,14 @@ export default function AdminDashboard() {
             <Icon name="video" className="h-5 w-5" strokeWidth={activeTab === 'video-testimonials' ? 2.5 : 2} />
             Video Testimonials
           </button>
+
+          <button 
+            onClick={() => setActiveTab("before-after")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'before-after' ? 'bg-gold-500 text-forest-950 font-bold shadow-md' : 'text-ivory-100/70 hover:bg-forest-800 hover:text-ivory-50'}`}
+          >
+            <Icon name="image" className="h-5 w-5" strokeWidth={activeTab === 'before-after' ? 2.5 : 2} />
+            Before & After
+          </button>
         </nav>
 
         <div className="p-4 border-t border-forest-800/50">
@@ -156,6 +164,7 @@ export default function AdminDashboard() {
               {activeTab === 'stories' && 'Patient Stories CMS'}
               {activeTab === 'faqs' && 'Manage FAQs'}
               {activeTab === 'video-testimonials' && 'Video Testimonials CMS'}
+              {activeTab === 'before-after' && 'Before & After Results'}
             </h1>
             <p className="text-sm text-gray-500 mt-1">
               {activeTab === 'inquiries' && 'Review consultation requests from patients.'}
@@ -169,6 +178,7 @@ export default function AdminDashboard() {
               {activeTab === 'stories' && 'Add, edit, and manage patient testimonials.'}
               {activeTab === 'faqs' && 'Manage frequently asked questions by category.'}
               {activeTab === 'video-testimonials' && 'Upload and manage video testimonials for the home page.'}
+              {activeTab === 'before-after' && 'Add and manage before/after patient result images for the home page.'}
             </p>
           </div>
         </header>
@@ -185,6 +195,7 @@ export default function AdminDashboard() {
           {activeTab === "stories" && <PatientStoriesTab />}
           {activeTab === "faqs" && <FaqsTab />}
           {activeTab === "video-testimonials" && <VideoTestimonialsTab />}
+          {activeTab === "before-after" && <BeforeAfterTab />}
         </div>
       </main>
     </div>
@@ -1589,3 +1600,260 @@ function VideoTestimonialsTab() {
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/*  Before & After Tab                                                 */
+/* ------------------------------------------------------------------ */
+
+function BeforeAfterTab() {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Form state
+  const [patientName, setPatientName] = useState('');
+  const [caption, setCaption] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [beforeFile, setBeforeFile] = useState<File | null>(null);
+  const [afterFile, setAfterFile] = useState<File | null>(null);
+
+  // Section content state
+  const [sectionConfig, setSectionConfig] = useState({
+    eyebrow: 'RESEARCH BACKED',
+    headline: '93% saw results*',
+    badge1: '300 Participants',
+    badge2: 'Users across Stage 1-5',
+    badge3: 'Tracked for 5+ months',
+    buttonText: 'View Results',
+    buttonLink: '/patient-stories',
+  });
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [configSaved, setConfigSaved] = useState(false);
+
+  const fetchItems = () => {
+    fetch('/api/before-after')
+      .then(r => r.json())
+      .then(data => { setItems(data || []); setLoading(false); })
+      .catch(() => setLoading(false));
+  };
+
+  const fetchConfig = () => {
+    fetch('/api/before-after/config')
+      .then(r => r.json())
+      .then(data => {
+        if (data && !data.error) {
+          setSectionConfig({
+            eyebrow: data.eyebrow || 'RESEARCH BACKED',
+            headline: data.headline || '93% saw results*',
+            badge1: data.badge1 || '300 Participants',
+            badge2: data.badge2 || 'Users across Stage 1-5',
+            badge3: data.badge3 || 'Tracked for 5+ months',
+            buttonText: data.buttonText || 'View Results',
+            buttonLink: data.buttonLink || '/patient-stories',
+          });
+        }
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => { fetchItems(); fetchConfig(); }, []);
+
+  const saveConfig = async () => {
+    setSavingConfig(true);
+    setConfigSaved(false);
+    try {
+      const res = await fetch('/api/before-after/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sectionConfig),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      setConfigSaved(true);
+      setTimeout(() => setConfigSaved(false), 3000);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  const uploadImage = async (file: File) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/upload/image', { method: 'POST', body: fd });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Upload failed');
+    return result.url;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!beforeFile || !afterFile) {
+      setError('Before and After images are required.');
+      return;
+    }
+    setUploading(true);
+    setError('');
+    try {
+      const avatarUrl = avatarFile ? await uploadImage(avatarFile) : '';
+      const beforeImageUrl = await uploadImage(beforeFile);
+      const afterImageUrl = await uploadImage(afterFile);
+
+      const res = await fetch('/api/before-after', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patientName, caption, avatarUrl, beforeImageUrl, afterImageUrl }),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+
+      setPatientName('');
+      setCaption('');
+      setAvatarFile(null);
+      setBeforeFile(null);
+      setAfterFile(null);
+      fetchItems();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this entry?')) return;
+    try {
+      const res = await fetch('/api/before-after?id=' + id, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      fetchItems();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  return (
+    <div className="space-y-8 max-w-4xl">
+      {/* Section Content Editor */}
+      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <h2 className="text-lg font-bold text-forest-900 mb-4">Section Content</h2>
+        <p className="text-sm text-gray-500 mb-4">Edit the headline, badges, and button text shown on the left side of the Research Backed section.</p>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Eyebrow Text</label>
+              <input type="text" value={sectionConfig.eyebrow} onChange={e => setSectionConfig({ ...sectionConfig, eyebrow: e.target.value })} className="w-full p-3 border rounded-xl" placeholder="RESEARCH BACKED" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Headline</label>
+              <input type="text" value={sectionConfig.headline} onChange={e => setSectionConfig({ ...sectionConfig, headline: e.target.value })} className="w-full p-3 border rounded-xl" placeholder="93% saw results*" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Badge 1</label>
+              <input type="text" value={sectionConfig.badge1} onChange={e => setSectionConfig({ ...sectionConfig, badge1: e.target.value })} className="w-full p-3 border rounded-xl" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Badge 2</label>
+              <input type="text" value={sectionConfig.badge2} onChange={e => setSectionConfig({ ...sectionConfig, badge2: e.target.value })} className="w-full p-3 border rounded-xl" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Badge 3</label>
+              <input type="text" value={sectionConfig.badge3} onChange={e => setSectionConfig({ ...sectionConfig, badge3: e.target.value })} className="w-full p-3 border rounded-xl" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Button Text</label>
+              <input type="text" value={sectionConfig.buttonText} onChange={e => setSectionConfig({ ...sectionConfig, buttonText: e.target.value })} className="w-full p-3 border rounded-xl" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Button Link</label>
+              <input type="text" value={sectionConfig.buttonLink} onChange={e => setSectionConfig({ ...sectionConfig, buttonLink: e.target.value })} className="w-full p-3 border rounded-xl" placeholder="/patient-stories" />
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={saveConfig} disabled={savingConfig} className="bg-forest-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-forest-900 disabled:opacity-50">
+              {savingConfig ? 'Saving...' : 'Save Section Content'}
+            </button>
+            {configSaved && <span className="text-green-600 font-semibold text-sm">✓ Saved!</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Upload Form */}
+      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <h2 className="text-lg font-bold text-forest-900 mb-4">Add New Before & After Result</h2>
+        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Patient Name *</label>
+              <input type="text" value={patientName} onChange={e => setPatientName(e.target.value)} className="w-full p-3 border rounded-xl" required placeholder="e.g. Ramesh K" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Caption</label>
+              <input type="text" value={caption} onChange={e => setCaption(e.target.value)} className="w-full p-3 border rounded-xl" placeholder="e.g. Kidney Stone — 12mm → Clear" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Patient Avatar Photo (optional)</label>
+            <input type="file" accept="image/*" onChange={e => { if (e.target.files) setAvatarFile(e.target.files[0]); }} className="w-full p-3 border rounded-xl" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Before Image *</label>
+              <input type="file" accept="image/*" onChange={e => { if (e.target.files) setBeforeFile(e.target.files[0]); }} className="w-full p-3 border rounded-xl" required />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">After Image *</label>
+              <input type="file" accept="image/*" onChange={e => { if (e.target.files) setAfterFile(e.target.files[0]); }} className="w-full p-3 border rounded-xl" required />
+            </div>
+          </div>
+          <button type="submit" disabled={uploading} className="bg-forest-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-forest-900 disabled:opacity-50">
+            {uploading ? 'Uploading...' : 'Add Result'}
+          </button>
+        </form>
+      </div>
+
+      {/* Manage Existing */}
+      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <h2 className="text-lg font-bold text-forest-900 mb-4">Manage Results</h2>
+        {loading ? <p>Loading...</p> : (
+          <div className="grid gap-6 sm:grid-cols-2">
+            {items.map(item => (
+              <div key={item._id} className="border rounded-2xl p-4 bg-gray-50">
+                <div className="flex items-center gap-3 mb-3">
+                  {item.avatarUrl ? (
+                    <img src={item.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-forest-800" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-forest-800 flex items-center justify-center text-white font-bold text-sm">
+                      {item.patientName?.charAt(0) || '?'}
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-bold text-forest-900 text-sm">{item.patientName}</p>
+                    {item.caption && <p className="text-xs text-gray-500">{item.caption}</p>}
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold uppercase text-gray-500 mb-1">Before</p>
+                    <img src={item.beforeImageUrl} alt="Before" className="w-full aspect-[4/5] object-cover rounded-xl" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold uppercase text-gray-500 mb-1">After</p>
+                    <img src={item.afterImageUrl} alt="After" className="w-full aspect-[4/5] object-cover rounded-xl" />
+                  </div>
+                </div>
+                <button onClick={() => handleDelete(item._id)} className="mt-3 text-sm text-red-500 hover:text-red-700 font-bold">Delete</button>
+              </div>
+            ))}
+            {items.length === 0 && <p className="col-span-full text-gray-500">No before/after results added yet.</p>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+

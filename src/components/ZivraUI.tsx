@@ -1640,7 +1640,7 @@ export const DashboardPage = ({ setPage }) => {
             </div>
             <button onClick={() => setPage("consult")} className="btn-primary"
               style={{ padding:"11px 22px", fontSize:13, borderRadius:8 }}>
-              + Book Consultation
+              + Secure Assessment
             </button>
           </div>
           {/* Tabs */}

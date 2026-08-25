@@ -662,7 +662,7 @@ export const faqCategories: { id: string; title: string; blurb: string; items: F
     items: [
       {
         q: "How can I book a consultation?",
-        a: `Call ${site.phone} or use the Book Consultation form on this website. Our team will confirm a convenient time with you.`,
+        a: `Call ${site.phone} or use the Secure Assessment form on this website. Our team will confirm a convenient time with you.`,
       },
       {
         q: "What should I bring to my appointment?",

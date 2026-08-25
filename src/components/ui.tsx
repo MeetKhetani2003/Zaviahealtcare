@@ -204,6 +204,7 @@ export function Button({
   onClick,
   type = "button",
   ariaLabel,
+  disabled,
 }: {
   to?: string;
   href?: string;
@@ -214,6 +215,7 @@ export function Button({
   onClick?: () => void;
   type?: "button" | "submit";
   ariaLabel?: string;
+  disabled?: boolean;
 }) {
   const cls = cn(
     "btn",
@@ -237,7 +239,7 @@ export function Button({
       </a>
     );
   return (
-    <button type={type} onClick={onClick} className={cls} aria-label={ariaLabel}>
+    <button type={type} onClick={onClick} className={cls} aria-label={ariaLabel} disabled={disabled}>
       {children}
     </button>
   );
