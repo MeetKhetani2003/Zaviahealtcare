@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import clientPromise, { getGridFSBucket } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const client = await clientPromise;
