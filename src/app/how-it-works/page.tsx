@@ -96,7 +96,7 @@ export default function HowItWorks() {
                   {i === 0 && (
                     <Reveal delay={320} className="mt-9">
                       <div className="flex flex-wrap gap-4">
-                        <Button href="/free-assessment">
+                        <Button href="/secure-assessment">
                           Start Step One
                           <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
                         </Button>

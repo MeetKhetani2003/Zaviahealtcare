@@ -29,6 +29,7 @@ export async function POST(req: Request) {
       description: data.description || '',
       videoUrl: data.videoUrl,
       videoId: data.videoId, // To keep track of GridFS id
+      thumbnailUrl: data.thumbnailUrl || '', // Added thumbnail support
       createdAt: new Date().toISOString()
     };
     

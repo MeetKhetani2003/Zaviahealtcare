@@ -140,7 +140,7 @@ export default function ConditionDetail() {
                       </Reveal>
                     ))}
                     <Reveal delay={220}>
-                      <Button href="/free-assessment">
+                      <Button href="/secure-assessment">
                         Take Free Assessment
                         <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
                       </Button>
@@ -187,7 +187,7 @@ export default function ConditionDetail() {
                     step is a conversation — not more worry.
                   </p>
                   <div className="mt-5 space-y-2.5">
-                    <Button href="/free-assessment" className="w-full">
+                    <Button href="/secure-assessment" className="w-full">
                       Take Free Assessment
                     </Button>
                     <Button href={site.phoneHref} variant="outline" className="w-full">

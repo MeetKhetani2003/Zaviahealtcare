@@ -58,7 +58,7 @@ export default function About() {
               </Reveal>
               <Reveal delay={330}>
                 <div className="mt-9 flex flex-wrap gap-4">
-                  <Button href="/free-assessment">
+                  <Button href="/secure-assessment">
                     Take Free Assessment
                     <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
                   </Button>

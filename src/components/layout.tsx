@@ -115,7 +115,7 @@ export function Header() {
               </span>
             </a>
             <Button href="/secure-assessment" size="sm" className="hidden sm:inline-flex">
-              Secure Assessment
+              Free Assessment
             </Button>
             <button
               type="button"
@@ -175,7 +175,7 @@ export function Header() {
           </nav>
           <div className="mt-auto space-y-3 bg-white px-6 py-6">
             <Button href="/secure-assessment" className="w-full">
-              Secure Assessment
+              Free Assessment
             </Button>
             <Button href={site.phoneHref} variant="outline" className="w-full">
               <Icon name="phone" className="h-4 w-4" strokeWidth={2} />
@@ -210,7 +210,7 @@ export function MobileCTA() {
         className="flex h-14 items-center justify-center gap-2 bg-forest-800 font-display text-[13.5px] font-bold text-ivory-50"
       >
         <Icon name="calendar" className="h-4 w-4" strokeWidth={2} />
-        Secure Assessment
+        Free Assessment
       </Link>
       <a
         href={site.phoneHref}
@@ -242,7 +242,7 @@ export function Footer() {
             </p>
             <div className="mt-7">
               <Button href="/secure-assessment" variant="gold" size="sm">
-                Secure Assessment
+                Free Assessment
                 <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
               </Button>
             </div>

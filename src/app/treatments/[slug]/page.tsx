@@ -158,7 +158,7 @@ export default function TreatmentDetail() {
                     will find a convenient time.
                   </p>
                   <div className="mt-5 space-y-2.5">
-                    <Button href="/free-assessment" variant="light" className="w-full">
+                    <Button href="/secure-assessment" variant="light" className="w-full">
                       Take Free Assessment
                     </Button>
                     <Button

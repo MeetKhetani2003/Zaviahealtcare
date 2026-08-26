@@ -22,7 +22,7 @@ export default function NotFound() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button href="/">Back To Home</Button>
-            <Button href="/free-assessment" variant="outline">
+            <Button href="/secure-assessment" variant="outline">
               Take Free Assessment
             </Button>
           </div>

@@ -127,7 +127,7 @@ export default function PatientStories() {
                       <Icon name="phone" className="h-4 w-4" strokeWidth={2} />
                       {site.phone}
                     </Button>
-                    <Button href="/free-assessment" size="sm">
+                    <Button href="/secure-assessment" size="sm">
                       Begin Your Journey
                     </Button>
                   </div>

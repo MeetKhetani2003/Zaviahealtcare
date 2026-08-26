@@ -52,7 +52,7 @@ export default function Treatments() {
         text="Care at ZivRA HEALTH is built around your specific concern — evaluated properly, explained clearly, and followed as needed."
         image={PHOTO.treatmentsHero}
       >
-        <Button href="/free-assessment" variant="light">
+        <Button href="/secure-assessment" variant="light">
           Take Free Assessment
           <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
         </Button>

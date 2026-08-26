@@ -18,7 +18,7 @@ type Inquiry = {
 };
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<"inquiries" | "home" | "free-assessment" | "upload" | "conditions" | "treatments" | "about" | "how-it-works" | "stories" | "faqs" | "video-testimonials" | "before-after">("inquiries");
+  const [activeTab, setActiveTab] = useState<"inquiries" | "home" | "upload" | "conditions" | "treatments" | "about" | "how-it-works" | "stories" | "faqs" | "video-testimonials" | "before-after">("inquiries");
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -56,13 +56,7 @@ export default function AdminDashboard() {
             Home Page
           </button>
           
-          <button 
-            onClick={() => setActiveTab("free-assessment")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'free-assessment' ? 'bg-gold-500 text-forest-950 font-bold shadow-md' : 'text-ivory-100/70 hover:bg-forest-800 hover:text-ivory-50'}`}
-          >
-            <Icon name="check-circle" className="h-5 w-5" strokeWidth={activeTab === 'free-assessment' ? 2.5 : 2} />
-            Assessment Form
-          </button>
+          
           
           <button 
             onClick={() => setActiveTab("upload")}
@@ -155,7 +149,7 @@ export default function AdminDashboard() {
             <h1 className="text-2xl font-bold text-forest-900 font-display">
               {activeTab === 'inquiries' && 'Manage Inquiries'}
               {activeTab === 'home' && 'Home Page Content'}
-              {activeTab === 'free-assessment' && 'Free Assessment Form Builder'}
+              
               {activeTab === 'upload' && 'Media Uploads'}
               {activeTab === 'conditions' && 'Manage Conditions'}
               {activeTab === 'treatments' && 'Manage Treatments'}
@@ -169,7 +163,7 @@ export default function AdminDashboard() {
             <p className="text-sm text-gray-500 mt-1">
               {activeTab === 'inquiries' && 'Review consultation requests from patients.'}
               {activeTab === 'home' && 'Edit text, images, and layout points for the main home page.'}
-              {activeTab === 'free-assessment' && 'Manage the page image, contact details, and build custom form fields dynamically.'}
+              
               {activeTab === 'upload' && 'Upload photos or YouTube shorts for the gallery.'}
               {activeTab === 'conditions' && 'Add and manage medical conditions.'}
               {activeTab === 'treatments' && 'Add and manage medical treatments.'}
@@ -186,7 +180,7 @@ export default function AdminDashboard() {
         <div className="flex-1 overflow-y-auto p-8 bg-gray-50">
           {activeTab === "inquiries" && <InquiriesTab />}
           {activeTab === "home" && <HomePageTab />}
-          {activeTab === "free-assessment" && <FreeAssessmentTab />}
+          
           {activeTab === "upload" && <UploadTab />}
           {activeTab === "conditions" && <ConditionsTab />}
           {activeTab === "treatments" && <TreatmentsTab />}
@@ -1017,177 +1011,6 @@ function HomePageTab() {
 
         <button type="submit" disabled={saving} className="bg-forest-800 text-white p-4 rounded-xl font-bold hover:bg-forest-900 disabled:opacity-50 mt-4 text-lg">
           {saving ? 'Saving...' : 'Save Home Page Content'}
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function FreeAssessmentTab() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/pages/free-assessment')
-      .then(res => res.json())
-      .then(res => {
-        setData(res);
-        setLoading(false);
-      });
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      await fetch('/api/pages/free-assessment', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      alert("Saved successfully!");
-    } catch (err) {
-      alert("Error saving.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const addField = () => {
-    setData({
-      ...data,
-      formFields: [
-        ...data.formFields,
-        { id: `field_${Date.now()}`, label: 'New Field', type: 'text', placeholder: '', required: false }
-      ]
-    });
-  };
-
-  const updateField = (index: number, key: string, value: any) => {
-    const newFields = [...data.formFields];
-    if (key === 'options') {
-      newFields[index][key] = value.split(',').map((s: string) => s.trim());
-    } else if (key === 'id') {
-      newFields[index][key] = value.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
-    } else {
-      newFields[index][key] = value;
-    }
-    setData({ ...data, formFields: newFields });
-  };
-
-  const removeField = (index: number) => {
-    const newFields = data.formFields.filter((_: any, i: number) => i !== index);
-    setData({ ...data, formFields: newFields });
-  };
-
-  const moveField = (index: number, direction: 'up' | 'down') => {
-    if (direction === 'up' && index === 0) return;
-    if (direction === 'down' && index === data.formFields.length - 1) return;
-    const newFields = [...data.formFields];
-    const swapIndex = direction === 'up' ? index - 1 : index + 1;
-    [newFields[index], newFields[swapIndex]] = [newFields[swapIndex], newFields[index]];
-    setData({ ...data, formFields: newFields });
-  };
-
-  if (loading) return <p>Loading...</p>;
-
-  return (
-    <div className="max-w-5xl mx-auto flex flex-col gap-8">
-      <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm flex flex-col gap-8">
-        
-        <div className="space-y-4">
-          <h3 className="font-bold text-forest-900 border-b pb-2 text-xl">Page Details</h3>
-          <div>
-            <label className="block text-sm font-semibold mb-1">Hero Image URL</label>
-            <ImageUpload label="" value={data.image} onChange={url => setData({...data, image: url})} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold mb-1">Contact Phone</label>
-              <input type="text" className="w-full p-3 border rounded-xl" value={data.contactDetails?.phone || ''} onChange={e => setData({...data, contactDetails: {...data.contactDetails, phone: e.target.value}})} />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Contact Email</label>
-              <input type="email" className="w-full p-3 border rounded-xl" value={data.contactDetails?.email || ''} onChange={e => setData({...data, contactDetails: {...data.contactDetails, email: e.target.value}})} />
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center justify-between border-b pb-2">
-            <h3 className="font-bold text-forest-900 text-xl">Form Builder</h3>
-            <button type="button" onClick={addField} className="text-sm bg-forest-100 text-forest-800 font-bold px-4 py-2 rounded-lg hover:bg-forest-200 transition-colors">
-              + Add Field
-            </button>
-          </div>
-          
-          <div className="space-y-4">
-            {data.formFields.map((field: any, index: number) => (
-              <div key={index} className="p-5 border border-gray-200 rounded-2xl bg-gray-50 flex gap-4">
-                <div className="flex flex-col gap-2 pt-2">
-                  <button type="button" onClick={() => moveField(index, 'up')} disabled={index === 0} className="p-1 text-gray-400 hover:text-forest-700 disabled:opacity-30"><Icon name="chevron-up" className="w-5 h-5" /></button>
-                  <button type="button" onClick={() => moveField(index, 'down')} disabled={index === data.formFields.length - 1} className="p-1 text-gray-400 hover:text-forest-700 disabled:opacity-30"><Icon name="chevron-down" className="w-5 h-5" /></button>
-                </div>
-                
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Label</label>
-                    <input type="text" className="w-full p-2.5 border border-gray-300 rounded-lg text-sm" value={field.label} onChange={e => updateField(index, 'label', e.target.value)} placeholder="e.g. Full Name" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Unique ID</label>
-                    <input type="text" className="w-full p-2.5 border border-gray-300 rounded-lg text-sm" value={field.id} onChange={e => updateField(index, 'id', e.target.value)} placeholder="e.g. first_name" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Type</label>
-                    <select className="w-full p-2.5 border border-gray-300 rounded-lg text-sm" value={field.type} onChange={e => updateField(index, 'type', e.target.value)}>
-                      <option value="text">Text (Short)</option>
-                      <option value="textarea">Text Area (Long)</option>
-                      <option value="email">Email</option>
-                      <option value="date">Date</option>
-                      <option value="number">Number</option>
-                      <option value="select">Dropdown (Select)</option>
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2 pt-6">
-                    <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer">
-                      <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-forest-700 focus:ring-forest-700" checked={field.required} onChange={e => updateField(index, 'required', e.target.checked)} />
-                      Required Field
-                    </label>
-                  </div>
-                  
-                  {field.type !== 'select' && field.type !== 'date' && (
-                    <div className="md:col-span-2 lg:col-span-4">
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Placeholder</label>
-                      <input type="text" className="w-full p-2.5 border border-gray-300 rounded-lg text-sm" value={field.placeholder || ''} onChange={e => updateField(index, 'placeholder', e.target.value)} placeholder="e.g. Enter your details here..." />
-                    </div>
-                  )}
-                  
-                  {field.type === 'select' && (
-                    <div className="md:col-span-2 lg:col-span-4">
-                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dropdown Options (Comma separated)</label>
-                      <input type="text" className="w-full p-2.5 border border-gray-300 rounded-lg text-sm" value={field.options ? field.options.join(', ') : ''} onChange={e => updateField(index, 'options', e.target.value)} placeholder="e.g. Option 1, Option 2, Option 3" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-6">
-                  <button type="button" onClick={() => removeField(index)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Field">
-                    <Icon name="trash-2" className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-            
-            {data.formFields.length === 0 && (
-              <p className="text-center text-gray-500 py-8">No form fields added yet. Click "+ Add Field" to start building your form.</p>
-            )}
-          </div>
-        </div>
-
-        <button type="submit" disabled={saving} className="bg-forest-800 text-white p-4 rounded-xl font-bold hover:bg-forest-900 disabled:opacity-50 mt-4 text-lg">
-          {saving ? 'Saving...' : 'Save Form & Page Configuration'}
         </button>
       </form>
     </div>

@@ -29,7 +29,7 @@ export default function Conditions() {
         text="Clear, honest information about the concerns we care for — so you understand your health before your first conversation."
         image={PHOTO.conditionsHero}
       >
-        <Button href="/free-assessment" variant="light">
+        <Button href="/secure-assessment" variant="light">
           Take Free Assessment
           <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
         </Button>

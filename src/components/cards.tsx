@@ -234,7 +234,7 @@ export function CTASection({
               {text}
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-              <Button href="/free-assessment" variant="light" size="lg">
+              <Button href="/secure-assessment" variant="light" size="lg">
                 Take Free Assessment
               </Button>
               <Button href={site.phoneHref} variant="lightOutline" size="lg">

@@ -71,7 +71,7 @@ export default function Faqs() {
                   <Icon name="phone" className="h-4 w-4" strokeWidth={2} />
                   {site.phone}
                 </Button>
-                <Button href="/free-assessment" variant="lightOutline">
+                <Button href="/secure-assessment" variant="lightOutline">
                   Take Free Assessment
                 </Button>
               </div>

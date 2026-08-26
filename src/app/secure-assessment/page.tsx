@@ -19,9 +19,36 @@ export default function SecureAssessmentPage() {
   });
 
   const [reports, setReports] = useState({
-    ultrasound: false,
-    blood: false,
+    physicalReportUrl: "",
+    bloodReportUrl: "",
   });
+  const [uploading, setUploading] = useState({ physical: false, blood: false });
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'physical' | 'blood') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading({ ...uploading, [type]: true });
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setReports({ ...reports, [type === 'physical' ? 'physicalReportUrl' : 'bloodReportUrl']: data.url });
+      } else {
+        alert(data.error || 'Upload failed');
+      }
+    } catch (err) {
+      alert('Error uploading file');
+    } finally {
+      setUploading({ ...uploading, [type]: false });
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,8 +62,8 @@ export default function SecureAssessmentPage() {
       }
       setStep(2);
     } else if (step === 2) {
-      if (!reports.ultrasound || !reports.blood) {
-        alert("Both Ultrasound and Blood Report are compulsory to proceed.");
+      if (!reports.physicalReportUrl || !reports.bloodReportUrl) {
+        alert("Both Physical Report and Blood Report are compulsory to proceed. Please upload them.");
         return;
       }
       submitAssessment();
@@ -73,7 +100,7 @@ export default function SecureAssessmentPage() {
       <div className="container-x max-w-3xl">
         <SectionHead
           center
-          eyebrow="Secure Assessment"
+          eyebrow="Free Assessment"
           title="Start Your Care Journey"
           text="Complete this simple 3-step assessment to help us understand your condition."
         />
@@ -191,41 +218,67 @@ export default function SecureAssessmentPage() {
               </div>
               
               <div className="space-y-4">
-                <label className="flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-colors border-forest-900/10 bg-sage-50/50 hover:bg-sage-50">
-                  <div className="flex-1 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-forest-800/10 flex items-center justify-center text-forest-800 shrink-0">
-                      <Icon name="pulse" className="w-6 h-6" strokeWidth={2} />
+                <div className="p-5 rounded-2xl border-2 transition-colors border-forest-900/10 bg-sage-50/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-forest-800/10 flex items-center justify-center text-forest-800 shrink-0">
+                        <Icon name="file-text" className="w-6 h-6" strokeWidth={2} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-forest-900 text-sm">Physical Report *</h4>
+                        <p className="text-xs text-ink-500 mt-0.5">Upload your latest physical/ultrasound report (PDF, PNG, JPG)</p>
+                      </div>
                     </div>
                     <div>
-                      <h4 className="font-bold text-forest-900 text-sm">Ultrasound Report *</h4>
-                      <p className="text-xs text-ink-500 mt-0.5">I have my latest ultrasound ready.</p>
+                      <label className="inline-block cursor-pointer bg-forest-50 hover:bg-forest-100 text-forest-800 border border-forest-200 px-4 py-2 rounded-lg text-sm font-bold transition-colors">
+                        {uploading.physical ? 'Uploading...' : (reports.physicalReportUrl ? 'Change File' : 'Upload File')}
+                        <input
+                          type="file"
+                          accept=".pdf,image/png,image/jpeg,image/jpg"
+                          className="hidden"
+                          onChange={(e) => handleFileUpload(e, 'physical')}
+                          disabled={uploading.physical}
+                        />
+                      </label>
                     </div>
                   </div>
-                  <input
-                    type="checkbox"
-                    className="w-5 h-5 rounded border-forest-900/20 text-forest-800 focus:ring-forest-800 cursor-pointer"
-                    checked={reports.ultrasound}
-                    onChange={(e) => setReports({ ...reports, ultrasound: e.target.checked })}
-                  />
-                </label>
+                  {reports.physicalReportUrl && (
+                    <div className="mt-3 text-xs font-bold text-forest-700 flex items-center gap-1">
+                      <Icon name="check-circle" className="w-4 h-4" /> File uploaded successfully
+                    </div>
+                  )}
+                </div>
 
-                <label className="flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-colors border-forest-900/10 bg-sage-50/50 hover:bg-sage-50">
-                  <div className="flex-1 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-forest-800/10 flex items-center justify-center text-forest-800 shrink-0">
-                      <Icon name="leaf" className="w-6 h-6" strokeWidth={2} />
+                <div className="p-5 rounded-2xl border-2 transition-colors border-forest-900/10 bg-sage-50/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-forest-800/10 flex items-center justify-center text-forest-800 shrink-0">
+                        <Icon name="activity" className="w-6 h-6" strokeWidth={2} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-forest-900 text-sm">Blood Report *</h4>
+                        <p className="text-xs text-ink-500 mt-0.5">Upload your recent blood test results (PDF, PNG, JPG)</p>
+                      </div>
                     </div>
                     <div>
-                      <h4 className="font-bold text-forest-900 text-sm">Blood Report *</h4>
-                      <p className="text-xs text-ink-500 mt-0.5">I have my recent blood test results.</p>
+                      <label className="inline-block cursor-pointer bg-forest-50 hover:bg-forest-100 text-forest-800 border border-forest-200 px-4 py-2 rounded-lg text-sm font-bold transition-colors">
+                        {uploading.blood ? 'Uploading...' : (reports.bloodReportUrl ? 'Change File' : 'Upload File')}
+                        <input
+                          type="file"
+                          accept=".pdf,image/png,image/jpeg,image/jpg"
+                          className="hidden"
+                          onChange={(e) => handleFileUpload(e, 'blood')}
+                          disabled={uploading.blood}
+                        />
+                      </label>
                     </div>
                   </div>
-                  <input
-                    type="checkbox"
-                    className="w-5 h-5 rounded border-forest-900/20 text-forest-800 focus:ring-forest-800 cursor-pointer"
-                    checked={reports.blood}
-                    onChange={(e) => setReports({ ...reports, blood: e.target.checked })}
-                  />
-                </label>
+                  {reports.bloodReportUrl && (
+                    <div className="mt-3 text-xs font-bold text-forest-700 flex items-center gap-1">
+                      <Icon name="check-circle" className="w-4 h-4" /> File uploaded successfully
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="mt-8 flex justify-between items-center">
