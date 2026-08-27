@@ -7,13 +7,11 @@ export default function SecureAssessmentPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Form Data
   const [formData, setFormData] = useState({
     name: "",
     age: "",
     phone: "",
-    email: "",
-    concern: "",
+    address: "",
     ultrasoundUrl: "",
     bloodReportUrl: "",
   });
@@ -56,7 +54,7 @@ export default function SecureAssessmentPage() {
 
   const nextStep = () => {
     if (step === 1) {
-      if (!formData.name || !formData.age || !formData.phone) {
+      if (!formData.name || !formData.age || !formData.phone || !formData.address) {
         alert("Please fill in all required basic details.");
         return;
       }
@@ -177,26 +175,16 @@ export default function SecureAssessmentPage() {
                     required
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-forest-900">Email Address</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full rounded-xl border border-forest-900/15 bg-white px-4 py-3 text-sm focus:border-forest-800 focus:outline-none focus:ring-1 focus:ring-forest-800"
-                    placeholder="john@example.com"
-                  />
-                </div>
                 <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-sm font-semibold text-forest-900">Describe Your Concern</label>
+                  <label className="text-sm font-semibold text-forest-900">Address *</label>
                   <textarea
-                    name="concern"
-                    value={formData.concern}
+                    name="address"
+                    value={formData.address}
                     onChange={handleInputChange}
                     rows={3}
                     className="w-full rounded-xl border border-forest-900/15 bg-white px-4 py-3 text-sm focus:border-forest-800 focus:outline-none focus:ring-1 focus:ring-forest-800"
-                    placeholder="Briefly describe your symptoms or reason for visit..."
+                    placeholder="Enter your complete address..."
+                    required
                   ></textarea>
                 </div>
               </div>

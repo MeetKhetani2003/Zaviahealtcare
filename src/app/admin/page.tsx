@@ -9,6 +9,7 @@ type Inquiry = {
   name: string;
   mobile: string;
   email: string;
+  address?: string;
   age: string;
   date: string;
   time: string;

@@ -14,10 +14,9 @@ export async function POST(req: Request) {
 
     const newInquiry = {
       name: body.name,
-      email: body.email || '',
+      address: body.address || '',
       phone: body.phone,
       age: body.age,
-      concern: body.concern || 'Free Assessment Submission',
       type: 'Free Assessment',
       reports: body.reports, // contains physicalReportUrl and bloodReportUrl
       status: 'pending',
@@ -47,8 +46,7 @@ export async function POST(req: Request) {
           <p><strong>Name:</strong> ${body.name}</p>
           <p><strong>Age:</strong> ${body.age}</p>
           <p><strong>Phone:</strong> ${body.phone}</p>
-          <p><strong>Email:</strong> ${body.email || 'N/A'}</p>
-          <p><strong>Concern:</strong> ${body.concern || 'N/A'}</p>
+          <p><strong>Address:</strong> ${body.address || 'N/A'}</p>
           <h3>Reports Attached:</h3>
           <ul>
             <li><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${body.reports?.physicalReportUrl}">Physical Report</a></li>
