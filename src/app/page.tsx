@@ -1,7 +1,10 @@
 // @ts-nocheck
-"use client";
+import clientPromise from "../lib/mongodb";
+import { patientStories } from "../data/content";
+import { Stories } from "../components/home-stories";
+import { VideoTestimonialsSection } from "../components/home-video-testimonials";
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { IMG } from "../assets";
 import {
   conditions,
@@ -561,148 +564,208 @@ function Trust({ data }: { data: any }) {
 /*  9 — Patient stories (polished empty / editable state)             */
 /* ================================================================== */
 
-function Stories() {
-  const [stories, setStories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
+/* ================================================================== */
+/*  10 — FAQ                                                           */
+/* ================================================================== */
 
-  useEffect(() => {
-    fetch('/api/pages/patient-stories')
-      .then(res => res.json())
-      .then(data => {
-        setStories(data.stories || []);
-        setLoading(false);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (stories.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % stories.length);
-    }, 60000);
-    return () => clearInterval(timer);
-  }, [stories.length]);
-
-  const nextStory = () => setCurrentIndex((prev) => (prev + 1) % stories.length);
-  const prevStory = () => setCurrentIndex((prev) => (prev - 1 + stories.length) % stories.length);
-
+function FaqSection() {
   return (
-    <section className="py-20 md:py-28">
+    <section className="bg-white py-20 md:py-28">
       <div className="container-x">
-        <Reveal scale>
-          {loading ? (
-            <div className="py-12 text-center text-forest-700 font-bold">Loading Stories...</div>
-          ) : stories.length === 0 ? (
-            <div className="relative mx-auto max-w-3xl overflow-hidden rounded-[2.5rem] border border-forest-900/10 bg-sage-50 px-8 py-16 text-center md:px-16">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-                className="mx-auto h-10 w-10 text-gold-500"
-              >
-                <path
-                  d="M10 8c-3 1-5 3.2-5 7v1h5v-6H7.5C8 9 9 8.4 10 8zm9 0c-3 1-5 3.2-5 7v1h5v-6h-2.5c.5-1 1.5-1.6 2.5-2z"
-                  fill="currentColor"
-                />
-              </svg>
-              <h2 className="mt-6 text-balance text-3xl font-bold tracking-tight text-forest-900 md:text-4xl">
-                Real Experiences From Patients Will Appear Here
-              </h2>
-              <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-ink-500">
-                When patients are comfortable sharing, their genuine stories will
-                be published on this page — with their first name and concern
-                category only. Your trust and privacy always come first.
-              </p>
-              <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-                <Button href="/patient-stories" variant="outline">
-                  Visit Patient Stories
-                </Button>
-                <Button href={site.phoneHref}>
-                  <Icon name="phone" className="h-4 w-4" strokeWidth={2} />
-                  Call {site.phone}
-                </Button>
+        <div className="grid gap-14 lg:grid-cols-[0.85fr_1.15fr]">
+          <Reveal scale>
+            <div className="img-reveal hidden overflow-hidden rounded-[2rem] border border-forest-900/10 shadow-soft lg:block">
+              <img
+                src={IMG.doctorConsultation}
+                alt="A private, one-to-one consultation"
+                loading="lazy"
+                width={800}
+                height={1000}
+                className="aspect-[4/5] w-full object-cover"
+              />
+            </div>
+            <div className="flex items-center gap-4 rounded-2xl border border-forest-900/10 bg-ivory-50 p-5 lg:hidden">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-forest-800 text-ivory-50">
+                <Icon name="phone" className="h-5 w-5" strokeWidth={2} />
+              </span>
+              <div>
+                <p className="text-[13px] text-ink-500">Still have a question?</p>
+                <a
+                  href={site.phoneHref}
+                  className="font-display text-lg font-bold text-forest-900"
+                >
+                  {site.phone}
+                </a>
               </div>
             </div>
-          ) : (
-            <div className="relative mx-auto max-w-4xl">
-              <div className="text-center mb-12">
-                <SectionHead eyebrow="Patient Stories" title="Real Experiences" center />
-              </div>
-              <div className="relative overflow-hidden rounded-[2.5rem] bg-sage-50 border border-forest-900/10 shadow-soft p-8 md:p-14">
-                {/* Large decorative quote mark */}
-                <div className="absolute top-6 left-8 text-gold-500/20 font-serif text-[120px] leading-none pointer-events-none select-none">
-                  "
-                </div>
-                
-                <div className="relative z-10 w-full">
-                  {stories.map((s, i) => (
-                    <div 
-                      key={i} 
-                      className={`w-full px-2 md:px-8 flex flex-col items-center text-center transition-opacity duration-700 ease-in-out ${
-                        i === currentIndex ? 'opacity-100 relative z-10' : 'opacity-0 absolute top-0 left-0 z-0 pointer-events-none'
-                      }`}
-                    >
-                      <blockquote className="text-lg md:text-2xl leading-relaxed text-forest-900 font-medium mb-10 max-w-3xl">
-                        "{s.quote}"
-                      </blockquote>
-                      <div className="flex items-center gap-4 bg-white/80 backdrop-blur-sm pr-6 pl-2 py-2 rounded-full border border-forest-900/10 shadow-sm">
-                        {s.image ? (
-                          <img
-                            src={s.image}
-                            alt={s.name}
-                            width={48}
-                            height={48}
-                            className="h-12 w-12 rounded-full object-cover"
-                          />
-                        ) : (
-                          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-forest-800 font-display text-lg font-bold text-ivory-50">
-                            {s.name.charAt(0)}
-                          </span>
-                        )}
-                        <div className="text-left">
-                          <p className="font-display text-[15px] font-bold text-forest-900">
-                            {s.name}
-                          </p>
-                          <p className="text-[12px] font-bold uppercase tracking-wider text-gold-600 mt-0.5">
-                            {s.category}
-                          </p>
-                        </div>
-                      </div>
+          </Reveal>
+
+          <div>
+            <SectionHead
+              eyebrow="FAQ"
+              title="Questions You May Have"
+              text="If your question isn't here, we're a phone call away."
+            />
+            <Reveal delay={140} className="mt-8">
+              <Accordion items={homeFaqs} />
+            </Reveal>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================== */
+/*  1.5 — Research Backed                                             */
+/* ================================================================== */
+/* ================================================================== */
+/*  1.5 — Research Backed                                             */
+/* ================================================================== */
+
+function ResearchBacked({ items }: { items: any[] }) {
+  return (
+    <section className="bg-[#416850] py-16 md:py-24 text-white overflow-hidden">
+      <div className="container-x">
+        <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] items-center">
+          {/* Left Side */}
+          <div>
+            <p className="font-display text-[13px] font-bold uppercase tracking-[0.18em] text-[#8BB284] mb-4">
+              RESEARCH BACKED
+            </p>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-8">
+              93% saw results*
+            </h2>
+            
+            <div className="flex flex-wrap gap-3 mb-8">
+              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
+                <Icon name="users" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
+                300 Participants
+              </span>
+              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
+                <Icon name="file-text" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
+                Users across Stage 1-5
+              </span>
+              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
+                <Icon name="calendar" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
+                Tracked for 5+ months
+              </span>
+            </div>
+            
+            <Link href="/patient-stories" className="inline-flex items-center gap-2 font-display text-[13px] font-bold text-white hover:text-[#8BB284] transition-colors border-b border-white hover:border-[#8BB284] pb-0.5">
+              View Results
+              <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
+            </Link>
+          </div>
+
+          {/* Right Side — Dynamic Before/After Cards */}
+          <div className="flex flex-col sm:flex-row gap-6 lg:gap-8 justify-center lg:justify-end mt-8 lg:mt-0 overflow-x-auto hide-scrollbar pt-8" style={{ scrollbarWidth: 'none' }}>
+            {items && items.length > 0 ? items.slice(0, 3).map((item, idx) => (
+              <div key={item._id?.toString() || idx} className={`relative bg-[#F9F7EF] rounded-3xl p-4 sm:p-5 text-forest-900 w-full sm:w-auto shadow-lg max-w-[280px] mx-auto shrink-0 ${idx > 0 ? 'mt-8 sm:mt-0' : ''}`}>
+                {/* Avatar */}
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full overflow-hidden border-[3px] border-[#416850] bg-forest-800 z-10 shadow-md">
+                  {item.avatarUrl ? (
+                    <img src={item.avatarUrl} alt={item.patientName} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-white font-bold text-base">
+                        {item.patientName?.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '?'}
+                      </span>
                     </div>
-                  ))}
+                  )}
                 </div>
-                
-                {stories.length > 1 && (
-                  <>
-                    <button onClick={prevStory} className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 flex items-center justify-center rounded-full border border-forest-900/10 text-forest-900 hover:bg-forest-800 hover:text-white hover:border-forest-800 transition-all bg-white shadow-md z-20">
-                      <Icon name="chevron-left" className="h-6 w-6" strokeWidth={2} />
-                    </button>
-                    <button onClick={nextStory} className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 flex items-center justify-center rounded-full border border-forest-900/10 text-forest-900 hover:bg-forest-800 hover:text-white hover:border-forest-800 transition-all bg-white shadow-md z-20">
-                      <Icon name="chevron-right" className="h-6 w-6" strokeWidth={2} />
-                    </button>
-                    
-                    {/* Pagination dots */}
-                    <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-20">
-                      {stories.map((_, idx) => (
-                        <button 
-                          key={idx}
-                          onClick={() => setCurrentIndex(idx)}
-                          className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? 'bg-forest-800 w-6' : 'bg-forest-900/20'}`}
-                          aria-label={`Go to slide ${idx + 1}`}
-                        />
-                      ))}
+                {/* Before / After Images */}
+                <div className="flex gap-3 sm:gap-4 mt-8">
+                  <div className="flex-1 text-center">
+                    <p className="text-[11px] font-bold uppercase tracking-wider mb-2 text-forest-800">BEFORE</p>
+                    <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-200">
+                      <img src={item.beforeImageUrl} alt="Before treatment" className="w-full h-full object-cover" />
                     </div>
-                  </>
+                  </div>
+                  <div className="flex-1 text-center">
+                    <p className="text-[11px] font-bold uppercase tracking-wider mb-2 text-forest-800">AFTER</p>
+                    <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-200">
+                      <img src={item.afterImageUrl} alt="After treatment" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                </div>
+                {item.caption && (
+                  <p className="text-center text-[11px] text-ink-500 mt-3 font-medium">{item.caption}</p>
                 )}
               </div>
-              <div className="mt-12 text-center">
-                <Button href="/patient-stories" variant="outline">
-                  View All Stories
-                </Button>
+            )) : (
+              /* Fallback placeholder when no items uploaded yet */
+              <div className="bg-[#F9F7EF]/20 rounded-3xl p-8 text-center border border-white/10 max-w-sm">
+                <p className="text-white/70 text-sm">Before & After results will appear here once uploaded from the admin dashboard.</p>
               </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================== */
+/*  1.5 — Research Backed                                             */
+/* ================================================================== */
+
+function ResearchBacked({ items }: { items: any[] }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <section className="bg-[#416850] py-16 md:py-24 text-white overflow-hidden">
+      <div className="container-x">
+        <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] items-center">
+          {/* Left Side */}
+          <div>
+            <p className="font-display text-[13px] font-bold uppercase tracking-[0.18em] text-[#8BB284] mb-4">
+              RESEARCH BACKED
+            </p>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-8">
+              93% saw results*
+            </h2>
+            
+            <div className="flex flex-wrap gap-3 mb-8">
+              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
+                <Icon name="users" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
+                1000+ Treated
+              </span>
+              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
+                <Icon name="check" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
+                Clinically Proven
+              </span>
             </div>
-          )}
-        </Reveal>
+
+            <p className="text-white/80 text-lg leading-relaxed mb-8">
+              Experience the difference with our evidence-based urological treatments. We combine advanced medical knowledge with personalized care.
+            </p>
+
+            <Link 
+              href="/patient-stories" 
+              className="inline-flex items-center gap-2 bg-white text-[#416850] px-6 py-3 rounded-full font-bold hover:bg-white/90 transition-colors"
+            >
+              View Results
+              <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
+            </Link>
+          </div>
+
+          {/* Right Side - Before/After Cards */}
+          <div className="relative">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {items.slice(0, 2).map((item, i) => (
+                <div key={i} className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
+                  <div className="aspect-[4/3] rounded-xl bg-black/20 mb-4 overflow-hidden relative">
+                    {item.afterImage && (
+                      <img src={item.afterImage} alt="After" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <p className="font-bold text-lg mb-1">{item.title || "Treatment Result"}</p>
+                  <p className="text-sm text-white/70">{item.description || "Patient achieved significant improvement."}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -761,124 +824,63 @@ function FaqSection() {
 }
 
 /* ================================================================== */
-/*  1.5 — Research Backed                                             */
-/* ================================================================== */
-
-function ResearchBacked() {
-  const [items, setItems] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetch('/api/before-after')
-      .then(r => r.json())
-      .then(data => setItems(data || []))
-      .catch(() => {});
-  }, []);
-
-  return (
-    <section className="bg-[#416850] py-16 md:py-24 text-white overflow-hidden">
-      <div className="container-x">
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] items-center">
-          {/* Left Side */}
-          <div>
-            <p className="font-display text-[13px] font-bold uppercase tracking-[0.18em] text-[#8BB284] mb-4">
-              RESEARCH BACKED
-            </p>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-8">
-              93% saw results*
-            </h2>
-            
-            <div className="flex flex-wrap gap-3 mb-8">
-              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
-                <Icon name="users" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
-                300 Participants
-              </span>
-              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
-                <Icon name="file-text" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
-                Users across Stage 1-5
-              </span>
-              <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm">
-                <Icon name="calendar" className="h-4 w-4 text-[#8BB284]" strokeWidth={2} />
-                Tracked for 5+ months
-              </span>
-            </div>
-            
-            <Link href="/patient-stories" className="inline-flex items-center gap-2 font-display text-[13px] font-bold text-white hover:text-[#8BB284] transition-colors border-b border-white hover:border-[#8BB284] pb-0.5">
-              View Results
-              <Icon name="arrow-right" className="h-4 w-4" strokeWidth={2} />
-            </Link>
-          </div>
-
-          {/* Right Side — Dynamic Before/After Cards */}
-          <div className="flex flex-col sm:flex-row gap-6 lg:gap-8 justify-center lg:justify-end mt-8 lg:mt-0 overflow-x-auto hide-scrollbar pt-8" style={{ scrollbarWidth: 'none' }}>
-            {items.length > 0 ? items.slice(0, 3).map((item, idx) => (
-              <div key={item._id} className={`relative bg-[#F9F7EF] rounded-3xl p-4 sm:p-5 text-forest-900 w-full sm:w-auto shadow-lg max-w-[280px] mx-auto shrink-0 ${idx > 0 ? 'mt-8 sm:mt-0' : ''}`}>
-                {/* Avatar */}
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full overflow-hidden border-[3px] border-[#416850] bg-forest-800 z-10 shadow-md">
-                  {item.avatarUrl ? (
-                    <img src={item.avatarUrl} alt={item.patientName} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-white font-bold text-base">
-                        {item.patientName?.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || '?'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                {/* Before / After Images */}
-                <div className="flex gap-3 sm:gap-4 mt-8">
-                  <div className="flex-1 text-center">
-                    <p className="text-[11px] font-bold uppercase tracking-wider mb-2 text-forest-800">BEFORE</p>
-                    <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-200">
-                      <img src={item.beforeImageUrl} alt="Before treatment" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                  <div className="flex-1 text-center">
-                    <p className="text-[11px] font-bold uppercase tracking-wider mb-2 text-forest-800">AFTER</p>
-                    <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-gray-200">
-                      <img src={item.afterImageUrl} alt="After treatment" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                </div>
-                {item.caption && (
-                  <p className="text-center text-[11px] text-ink-500 mt-3 font-medium">{item.caption}</p>
-                )}
-              </div>
-            )) : (
-              /* Fallback placeholder when no items uploaded yet */
-              <div className="bg-[#F9F7EF]/20 rounded-3xl p-8 text-center border border-white/10 max-w-sm">
-                <p className="text-white/70 text-sm">Before & After results will appear here once uploaded from the admin dashboard.</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ================================================================== */
 /*  Page                                                              */
 /* ================================================================== */
 
-export default function Home() {
-  const [data, setData] = useState<any>(null);
+export default async function Home() {
+  const client = await clientPromise;
+  const db = client.db();
 
-  useEffect(() => {
-    fetch('/api/pages/home')
-      .then(res => res.json())
-      .then(setData);
-  }, []);
+  // Fetch all required data concurrently
+  const [homeDoc, storiesDoc, beforeAfterItems, testimonials] = await Promise.all([
+    db.collection("pages").findOne({ _id: "home_content" }),
+    db.collection("pages").findOne({ _id: "patient_stories_content" }),
+    db.collection("before_after").find({}).sort({ createdAt: -1 }).toArray(),
+    db.collection("video_testimonials").find({}).sort({ createdAt: -1 }).toArray()
+  ]);
 
-  if (!data) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p className="text-forest-700 font-bold">Loading Home Page...</p>
-    </div>
-  );
+  const data = homeDoc || {
+    hero: {
+      title: "Better Urological Health Starts With The Right Care.",
+      text: "Consult with Dr. Adeel for personalised and patient-centred urological care.",
+      points: ["15+ Years Experience", "Doctor-Led Care", "Patient-Centred Approach"],
+    },
+    doctorIntro: {
+      title: "Experience That Puts Patients First",
+      p1: "Dr. Adeel is a urologist...",
+      p2: "From urinary concerns to kidney and prostate health...",
+    },
+    why: {
+      title: "Healthcare Built Around You",
+      points: [
+        { icon: "clock", title: "No Rushed Appointments", text: "..." },
+        { icon: "shield", title: "Transparent Care Plans", text: "..." },
+        { icon: "heart", title: "Comfortable Environment", text: "..." },
+      ],
+    },
+    education: {
+      title: "Small Symptoms Shouldn't Always Be Ignored",
+      p1: "Many urological concerns begin quietly...",
+      p2: "If something has been on your mind...",
+      points: ["Persistent symptoms deserve an evaluation", "Many concerns are far easier to manage when caught early"],
+    },
+    trust: {
+      title: "Care You Can Count On",
+      text: "Practicing in Darbhanga...",
+      stats: [{ value: "15+", label: "Years of Practice" }],
+    }
+  };
+
+  const initialStories = storiesDoc?.stories || patientStories || [];
+
+  // Before passing MongoDB documents to Client Components, serialize them
+  const serializedBeforeAfter = JSON.parse(JSON.stringify(beforeAfterItems || []));
+  const serializedTestimonials = JSON.parse(JSON.stringify(testimonials || []));
 
   return (
     <>
       <Hero data={data.hero} />
-      <ResearchBacked />
+      <ResearchBacked items={serializedBeforeAfter} />
       <Concerns />
       <DoctorIntro data={data.doctorIntro} />
       <Why data={data.why} />
@@ -886,180 +888,10 @@ export default function Home() {
       <Education data={data.education} />
       <ConditionsGrid />
       <Trust data={data.trust} />
-      <VideoTestimonialsSection />
-      <Stories />
+      <VideoTestimonialsSection initialVideos={serializedTestimonials} />
+      <Stories initialStories={initialStories} />
       <FaqSection />
       <CTASection className="pt-4" />
     </>
-  );
-}
-
-
-/* ================================================================== */
-/*  Video Testimonials                                                */
-/* ================================================================== */
-
-function VideoTestimonialsSection() {
-  const [videos, setVideos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedVideo, setSelectedVideo] = useState<any>(null);
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    fetch('/api/video-testimonials')
-      .then(res => res.json())
-      .then(data => {
-        setVideos(data || []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = 300;
-      scrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
-    }
-  };
-
-  if (loading) return null;
-
-  return (
-    <section className="bg-white py-20 md:py-28 overflow-hidden">
-      <div className="container-x">
-        <div className="flex flex-col items-center mb-12 text-center">
-          <SectionHead
-            title="Our Success Stories"
-            center
-          />
-        </div>
-        
-        <div className="relative -mx-4 px-4 md:mx-0 md:px-0">
-          {videos.length === 0 ? (
-            <div className="text-center py-12 bg-sage-50 rounded-2xl border border-forest-900/10">
-              <p className="text-forest-900 font-bold">No video testimonials have been uploaded yet.</p>
-              <p className="text-sm text-ink-500 mt-2">Head over to the admin dashboard to add your first video.</p>
-            </div>
-          ) : (
-            <div className="relative group/nav max-w-5xl mx-auto">
-              {/* Navigation Arrows */}
-              <button 
-                onClick={() => scroll('left')} 
-                className="absolute left-0 top-[40%] -translate-y-1/2 -translate-x-5 h-12 w-12 flex items-center justify-center rounded-full bg-white border border-forest-900/10 text-forest-900 shadow-xl z-10 opacity-0 md:group-hover/nav:opacity-100 transition-opacity"
-              >
-                <Icon name="chevron-left" className="h-6 w-6" strokeWidth={2} />
-              </button>
-              <button 
-                onClick={() => scroll('right')} 
-                className="absolute right-0 top-[40%] -translate-y-1/2 translate-x-5 h-12 w-12 flex items-center justify-center rounded-full bg-white border border-forest-900/10 text-forest-900 shadow-xl z-10 opacity-0 md:group-hover/nav:opacity-100 transition-opacity"
-              >
-                <Icon name="chevron-right" className="h-6 w-6" strokeWidth={2} />
-              </button>
-
-              <div 
-                ref={scrollRef}
-                className="flex gap-4 md:gap-5 overflow-x-auto hide-scrollbar pb-8 pt-4 justify-start px-4 md:px-2 snap-x snap-mandatory"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
-                {videos.map((v) => (
-                  <div 
-                    key={v._id} 
-                    className="relative flex flex-col w-[260px] md:w-[280px] shrink-0 cursor-pointer group snap-center" 
-                    onClick={() => setSelectedVideo(v)}
-                  >
-                    {/* Video Area */}
-                    <div className="relative h-[340px] md:h-[380px] w-full bg-gray-100 rounded-t-2xl overflow-hidden shadow-sm">
-                      <video 
-                        src={v.videoUrl} 
-                        poster={v.thumbnailUrl || undefined}
-                        playsInline
-                        muted
-                        loop
-                        onMouseEnter={(e) => { e.currentTarget.play(); }}
-                        onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
-                        preload="metadata"
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                      />
-                      <div className="absolute inset-0 bg-black/10 transition-opacity duration-300 group-hover:bg-black/0" />
-                      
-                      {/* Play Button Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none">
-                        <div className="w-12 h-12 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20">
-                          <Icon name="play" className="h-5 w-5 text-white ml-1 drop-shadow-md" strokeWidth={2.5} />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Traya-Style Dark Bottom Box */}
-                    <div className="relative bg-[#454746] text-white p-5 pt-6 rounded-b-2xl shadow-sm z-10 min-h-[120px] flex flex-col justify-between">
-                      {/* Speech Bubble Pointer */}
-                      <div className="absolute -top-3 left-6 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[12px] border-b-[#454746]" />
-                      
-                      <p className="text-[13.5px] leading-snug font-medium text-white/95 line-clamp-3">
-                        {v.description || "I trusted the journey and the result speaks for themselves."}
-                      </p>
-                      
-                      <p className="text-[12px] text-white/70 mt-3 font-semibold tracking-wide">
-                        {v.name}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Reel Modal */}
-      {selectedVideo && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-6">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-md" onClick={() => setSelectedVideo(null)} />
-          
-          <div className="relative w-full h-full sm:w-[400px] sm:h-[90vh] sm:max-h-[850px] bg-black sm:rounded-[2.5rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300 flex flex-col border border-white/10 mx-auto">
-            
-            {/* Top Bar with Close Button */}
-            <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-b from-black/60 to-transparent z-10 flex justify-end pointer-events-none">
-              <button 
-                onClick={() => setSelectedVideo(null)}
-                className="pointer-events-auto w-11 h-11 bg-black/30 hover:bg-black/50 backdrop-blur-xl rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 border border-white/20 shadow-lg"
-              >
-                <Icon name="x" className="h-5 w-5" strokeWidth={2.5} />
-              </button>
-            </div>
-
-            {/* Video Player */}
-            <video 
-              src={selectedVideo.videoUrl} 
-              controls 
-              autoPlay 
-              playsInline
-              className="w-full h-full object-contain sm:object-cover" 
-            />
-
-            {/* Bottom Info Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 pb-24 sm:pb-20 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 pointer-events-none flex flex-col justify-end">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-forest-800 flex items-center justify-center text-white font-bold text-base border border-white/20 shadow-lg">
-                  {selectedVideo.name.charAt(0)}
-                </div>
-                <p className="text-white font-bold font-display text-lg tracking-tight drop-shadow-md">
-                  {selectedVideo.name}
-                </p>
-              </div>
-              {selectedVideo.description && (
-                <p className="text-white/90 text-[14px] font-medium drop-shadow leading-snug ml-13">
-                  {selectedVideo.description}
-                </p>
-              )}
-            </div>
-            
-          </div>
-        </div>
-      )}
-    </section>
   );
 }

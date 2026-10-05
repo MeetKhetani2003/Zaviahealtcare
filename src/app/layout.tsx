@@ -25,9 +25,6 @@ export const metadata: Metadata = {
     apple: "/images/logo/zivra-health-logo.png",
   },
   metadataBase: new URL("https://zivrahealth.in"),
-  alternates: {
-    canonical: "/"
-  },
   openGraph: {
     title: "Zivra Health | Best Urologist in Darbhanga, Bihar",
     description: "Consult Dr. Adeel (BUMS) for expert care for kidney stones, prostate issues, and bladder health in Laheriasarai, Darbhanga. 15+ years experience.",
